@@ -7,14 +7,79 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net;
+using System.IO;
+using System.IO.Compression;
 
 namespace Covid19_Dashboard
 {
     public partial class Form1 : Form
     {
+        
+        string remoteUri = "https://info.gesundheitsministerium.at/data/";
+        string fileName = "data.zip";
+        string dataFolder = @"c:\temp\coviddata";
         public Form1()
         {
             InitializeComponent();
+            DownloadData();
+            Unzip();
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void DownloadData()
+        {
+            using (var client = new WebClient())
+            {
+
+                //Download most up to date data
+                try
+                {
+                    client.DownloadFile(new System.Uri(remoteUri + fileName), @"c:\temp\data.zip");
+                }
+                catch(WebException e)
+                {
+                    MessageBox.Show("Beim Updaten ist ein Fehler aufgetreten");
+                }
+            }
+        }
+
+        private void Unzip()
+        {
+            try
+            {
+                //Get current directory and unzip files to the temp directoy
+                string path = Directory.GetCurrentDirectory();
+                if(!Directory.Exists(dataFolder))
+                {
+                    Directory.CreateDirectory(dataFolder);
+                }
+
+                ZipFile.ExtractToDirectory(@"c:\temp\data.zip", dataFolder);
+                
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show("Beim extrahieren der Daten ist ein Fehler aufgetreten. {0}" + e.ToString());
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+        private void beendenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
