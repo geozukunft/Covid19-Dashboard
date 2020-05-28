@@ -10,6 +10,9 @@ using System.Windows.Forms;
 using System.Net;
 using System.IO;
 using System.IO.Compression;
+using System.Windows;
+using System.Windows.Input;
+using System.Collections;
 
 namespace Covid19_Dashboard
 {
@@ -19,6 +22,27 @@ namespace Covid19_Dashboard
         string remoteUri = "https://info.gesundheitsministerium.at/data/";
         string fileName = "data.zip";
         string dataFolder = @"c:\temp\coviddata";
+
+        //filenames
+        string Epikurve = "Epikurve.csv";
+        string GenesenTimeline = "GenesenTimeline.csv";
+        string IBAuslastung = "IBAuslastung.csv";
+        string IBKapazitaeten = "IBKapazitaeten.csv";
+        string NBAuslastung = "NBAuslastung.csv";
+        string NBKapazitaeten = "NBKapazitaeten.csv";
+        string TodesfaelleTimeline = "TodesfaelleTimeline.csv";
+        string AllgemeinDaten = "AllgemeinDaten.csv";
+        string Altersverteilung = "Altersverteilung.csv";
+        string AltersverteilungTodesfaelle = "AltersverteilungTodesfaelle.csv";
+        string AltersverteilungTodesfaelleDemogr = "AltersverteilungTodesfaelleDemogr.csv";
+        string Bezirke = "Bezirke.csv";
+        string Bundesland = "Bundesland.csv";
+        string GenesenTodesFalleBL = "GenesenTodesFalleBL.csv";
+        string Geschlechtsverteilung = "Geschlechtsverteilung.csv";
+        string VerstorbenGeschlechtsverteilung = "VerstorbenGeschlechtsverteilung.csv";
+
+        List<CurrentData> GeneralData = new List<CurrentData>();
+
         public Form1()
         {
             InitializeComponent();
@@ -71,89 +95,117 @@ namespace Covid19_Dashboard
 
         private void ReadData()
         {
-
+            
         }
 
 
+        private void ReadCurrentData()
+        {
 
+        }
 
+        private void ReadAllgemeinDaten()
+        {
+            string fullpath = dataFolder + @"\" + AllgemeinDaten;
+            int i = 0;
 
+            foreach(string line in File.ReadLines(fullpath))
+            {
+                if(i != 0)
+                {
+                    if(!string.IsNullOrEmpty(line))
+                    {
+                        string[] splitLine = line.Split(';');
+                        try
+                        {
+                            GeneralData.Add(new CurrentData() { current = Convert.ToInt32(splitLine[0]), positive = Convert.ToInt32(splitLine[1]),
+                                recoverd = Convert.ToInt32(splitLine[2]), deadConfirmed = Convert.ToInt32(splitLine[3]), deadReported = Convert.ToInt32(splitLine[4]),
+                                tested = Convert.ToInt32(splitLine[5]), allconfirmedcases = Convert.ToInt32(splitLine[6]), allNBavailable = Convert.ToInt32(splitLine[7]),
+                                allIBavailable = Convert.ToInt32(splitLine[8]), allNBload = Convert.ToInt32(splitLine[9]), allIBload = Convert.ToInt32(splitLine[10]),
+                                ccnH = Convert.ToInt32(splitLine[11]), diseases = Convert.ToInt32(splitLine[12]), lastUpdate = Convert.ToDateTime(splitLine[13]),
+                                timestamp = Convert.ToDateTime(splitLine[14])});
+                        }
+                        catch(Exception ex)
+                        {
 
+                        }
+                    }
+                }
+            }
+        }
 
         private void beendenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
-
         struct TimeData
         {
             public DateTime datatime;
 
-            public int dailyDiseases; //new diseases on this day keep in mind the special scheme that is used for the data in the readme
-            public int recoverd; //recoverd 
-            public int IBload; //intensive bed load 
-            public int IBcap; //intensive bed capacity
-            public int NBload; //normal bed load
-            public int NBcap; //normal bed capacity
-            public int deaths; //total deaths
-            public DateTime timestamp; //timestamp of data getting pulled
+            public int dailyDiseases { get; set; } //new diseases on this day keep in mind the special scheme that is used for the data in the readme
+            public int recoverd { get; set; } //recoverd 
+            public int IBload { get; set; } //intensive bed load 
+            public int IBcap { get; set; } //intensive bed capacity
+            public int NBload { get; set; } //normal bed load
+            public int NBcap { get; set; } //normal bed capacity
+            public int deaths { get; set; } //total deaths
+            public DateTime timestamp { get; set; } //timestamp of data getting pulled
         }
-
         struct CurrentData
         {
             //all values display totals
 
             //Values inside of AllgemeinDaten.csv
-            public int current; //cuzrrently Ill
-            public int positive; //Tested positive
-            public int recoverd; //recoverd 
-            public int deadConfirmed; //all deaths that have been confirmed to be caused by covid-19
-            public int deadReported; //all deaths that have been reported but there could be some that are not yet confirmed to be caused by covid-19
-            public int tested; //people tested
-            public int allconfirmedcases; //this value represents all cases including those that intially did not get tested
-            public int allNBavailable; //all normalbeds currently available
-            public int allIBavailable; //all intensive beds currently available
-            public int allNBload; //normal beds currently used
-            public int allIBload; //intensive beds currently used
-            public int ccnH; //confirmed cases not hospitalized
-            public int diseases; //all confirmed diseases
-            public DateTime lastUpdate; //last time the data was updated
-            public DateTime timestamp; //timestamp of data getting pulled
+            public int current { get; set; } //cuzrrently Ill
+            public int positive { get; set; } //Tested positive
+            public int recoverd { get; set; } //recoverd 
+            public int deadConfirmed { get; set; } //all deaths that have been confirmed to be caused by covid-19
+            public int deadReported { get; set; } //all deaths that have been reported but there could be some that are not yet confirmed to be caused by covid-19
+            public int tested { get; set; } //people tested
+            public int allconfirmedcases { get; set; } //this value represents all cases including those that intially did not get tested
+            public int allNBavailable { get; set; } //all normalbeds currently available
+            public int allIBavailable { get; set; } //all intensive beds currently available
+            public int allNBload { get; set; } //normal beds currently used
+            public int allIBload { get; set; } //intensive beds currently used
+            public int ccnH { get; set; } //confirmed cases not hospitalized
+            public int diseases { get; set; } //all confirmed diseases
+            public DateTime lastUpdate { get; set; } //last time the data was updated
+            public DateTime timestamp { get; set; } //timestamp of data getting pulled
 
         }
 
         struct AgeData
         {
-            public string ageGroup; //contains the agegroup
-            public int cases; //cases related to the age group
-            public int deaths; //deaths related to the age group
-            public int deaths_demo; //deaths per 100k population
-            public DateTime timestamp; //timestamp of data getting pulled
+            public string ageGroup { get; set; } //contains the agegroup
+            public int cases { get; set; } //cases related to the age group
+            public int deaths { get; set; } //deaths related to the age group
+            public int deaths_demo { get; set; } //deaths per 100k population
+            public DateTime timestamp { get; set; } //timestamp of data getting pulled
         }
 
         struct GenderData
         {
-            public string sender;
-            public int dist; //Distribiution of cases
-            public int death_dist; //Distribiution of deaths
+            public string sender { get; set; }
+            public int dist { get; set; } //Distribiution of cases
+            public int death_dist { get; set; } //Distribiution of deaths
+            public DateTime timestamp { get; set; } //timestamp of data getting pulled
         }
 
         struct StateData
         {
-            public string state; //Name of the state
-            public string cases; //Cases in that state
-            public int GKZ; //I honestly don't know why this int exsists
-            public DateTime timestamp; //timestamp of data getting pulled
+            public string state { get; set; } //Name of the state
+            public string cases { get; set; } //Cases in that state
+            public int GKZ { get; set; } //I honestly don't know why this int exsists
+            public DateTime timestamp { get; set; } //timestamp of data getting pulled
         }
 
         struct CountyData
         {
-            public string county; //Name of the county
-            public int cases; //cases in that county
-            public double cases_demo; //cases per 100k population
-            public int GKZ; //I honestly don't know why this int exsists
-            public DateTime timestamp;
+            public string county { get; set; } //Name of the county
+            public int cases { get; set; } //cases in that county
+            public double cases_demo { get; set; } //cases per 100k population
+            public int GKZ { get; set; } //I honestly don't know why this int exsists
+            public DateTime timestamp { get; set; }
         }
     }
 }
