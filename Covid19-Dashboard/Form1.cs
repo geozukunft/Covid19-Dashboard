@@ -41,13 +41,16 @@ namespace Covid19_Dashboard
         string Geschlechtsverteilung = "Geschlechtsverteilung.csv";
         string VerstorbenGeschlechtsverteilung = "VerstorbenGeschlechtsverteilung.csv";
 
-        List<CurrentData> GeneralData = new List<CurrentData>();
+        List<CurrentData> GeneralDataSet = new List<CurrentData>();
+
+        List<GenderData> GenderDataSet = new List<GenderData>();
 
         public Form1()
         {
             InitializeComponent();
             DownloadData();
             Unzip();
+            ReadData();
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -95,13 +98,14 @@ namespace Covid19_Dashboard
 
         private void ReadData()
         {
-            
+            ReadCurrentData();
         }
 
 
         private void ReadCurrentData()
         {
-
+            ReadAllgemeinDaten();
+            MessageBox.Show("Finished");
         }
 
         private void ReadAllgemeinDaten()
@@ -118,7 +122,7 @@ namespace Covid19_Dashboard
                         string[] splitLine = line.Split(';');
                         try
                         {
-                            GeneralData.Add(new CurrentData() { current = Convert.ToInt32(splitLine[0]), positive = Convert.ToInt32(splitLine[1]),
+                            GeneralDataSet.Add(new CurrentData() { current = Convert.ToInt32(splitLine[0]), positive = Convert.ToInt32(splitLine[1]),
                                 recoverd = Convert.ToInt32(splitLine[2]), deadConfirmed = Convert.ToInt32(splitLine[3]), deadReported = Convert.ToInt32(splitLine[4]),
                                 tested = Convert.ToInt32(splitLine[5]), allconfirmedcases = Convert.ToInt32(splitLine[6]), allNBavailable = Convert.ToInt32(splitLine[7]),
                                 allIBavailable = Convert.ToInt32(splitLine[8]), allNBload = Convert.ToInt32(splitLine[9]), allIBload = Convert.ToInt32(splitLine[10]),
@@ -132,6 +136,55 @@ namespace Covid19_Dashboard
                     }
                 }
             }
+        }
+
+        private void ReadGenderData()
+        {
+            string fullpath1 = dataFolder + @"\" + Geschlechtsverteilung;
+            string fullpath2 = dataFolder + @"\" + VerstorbenGeschlechtsverteilung;
+
+            int i = 0;
+
+            foreach(string line in File.ReadLines(fullpath1))
+            {
+                if(i != 0)
+                {
+                    if(!string.IsNullOrEmpty(line))
+                    {
+                        string[] splitLine = line.Split(';');
+                        try
+                        {
+                            GenderDataSet.Add(new GenderData() {gender = splitLine[0], dist = Convert.ToInt32(splitLine[1]), timestamp = Convert.ToDateTime(splitLine[2])});
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            
+
+            foreach (string line in File.ReadLines(fullpath2))
+            {
+                if (i != 0)
+                {
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        string[] splitLine = line.Split(';');
+                        try
+                        {
+                            GenderDataSet.Add(new GenderData() { gender = splitLine[0], death_dist = Convert.ToInt32(splitLine[1]), timestamp = Convert.ToDateTime(splitLine[2]) });
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
         }
 
         private void beendenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -185,7 +238,7 @@ namespace Covid19_Dashboard
 
         struct GenderData
         {
-            public string sender { get; set; }
+            public string gender { get; set; }
             public int dist { get; set; } //Distribiution of cases
             public int death_dist { get; set; } //Distribiution of deaths
             public DateTime timestamp { get; set; } //timestamp of data getting pulled
